@@ -1,0 +1,55 @@
+<script type="text/javascript">
+    RED.nodes.registerType('tdengine', {
+        category: 'config',
+        color: '#a6bbcf',
+        icon: 'db.svg',
+        defaults: {
+            host: {
+                value: "localhost",
+                required: true
+            },
+            port: {
+                value: 0,
+                required: false
+            }
+        },
+        credentials: {
+            user: {
+                type: "text",
+                default: "root",
+                required: false
+            },
+            password: {
+                type: "password",
+                default: "taosdata",
+                required: false
+            }
+        },
+        label: function() {
+            return this.name || "TDEngine Database";
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="tdengine">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Host</label>
+        <input type="text" id="node-input-host" placeholder="localhost">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Host</label>
+        <input type="text" id="node-input-host" placeholder="localhost">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Host</label>
+        <input type="text" id="node-input-host" placeholder="localhost">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Host</label>
+        <input type="text" id="node-input-host" placeholder="localhost">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="tdengine">
+    <p>TDEngine Database Connector</p>
+</script>

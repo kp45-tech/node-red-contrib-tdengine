@@ -1,37 +1,31 @@
 {
     "name": "node-red-contrib-tdengine",
     "version": "0.0.1",
-    "description": "TDEngine connector for node-red",
-    "main": "tdengine.js",
-    "directories": {
-        "test": "test"
-    },
+    "description": "",
+    "main": "index.js",
     "scripts": {
-        "test": "node test/test.js"
+        "test": "echo \"Error: no test specified\" && exit 1"
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/taosdata/tdengine.git"
+        "url": "git+https://github.com/kevinpan45/node-red-contrib-tdengine.git"
     },
-    "keywords": [
-        "TDengine",
-        "TAOS Data",
-        "Time Series Database",
-        "Connector"
-    ],
-    "author": "TaosData Inc.",
-    "license": "AGPL-3.0-or-later",
+    "author": "kevinpan45@163.com",
+    "license": "ISC",
     "bugs": {
-        "url": "https://github.com/taosdata/tdengine/issues"
+        "url": "https://github.com/kevinpan45/node-red-contrib-tdengine/issues"
     },
-    "homepage": "https://github.com/taosdata/tdengine#readme",
+    "homepage": "https://github.com/kevinpan45/node-red-contrib-tdengine#readme",
     "dependencies": {
-        "ffi-napi": "^3.1.0",
-        "ref-array-napi": "^1.2.1",
-        "ref-napi": "^1.5.2",
-        "ref-struct-napi": "^1.1.1"
+        "td2.0-connector": "^2.0.10"
+    },
+    "node-red": {
+        "nodes": {
+            "tdengine": "tdengine.js"
+        }
     },
     "keywords": [
-        "node-red"
+        "node-red",
+        "tdengine"
     ]
 }
