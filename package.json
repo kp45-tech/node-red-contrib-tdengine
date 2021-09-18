@@ -4,7 +4,7 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "mocha \"test/*_spec.js\""
     },
     "repository": {
         "type": "git",
@@ -17,6 +17,7 @@
     },
     "homepage": "https://github.com/kevinpan45/node-red-contrib-tdengine#readme",
     "dependencies": {
+        "mocha": "^9.1.1",
         "td2.0-connector": "^2.0.10"
     },
     "node-red": {
@@ -27,5 +28,9 @@
     "keywords": [
         "node-red",
         "tdengine"
-    ]
+    ],
+    "devDependencies": {
+        "node-red": "^2.0.6",
+        "node-red-node-test-helper": "^0.2.7"
+    }
 }
