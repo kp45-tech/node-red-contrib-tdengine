@@ -1,45 +1,48 @@
-module.exports = function(RED) {
-    const taos = require('td2.0-connector');
+module.exports = function (RED) {
+    const fetch = require('node-fetch');
 
     function TDEngineNode(config) {
         RED.nodes.createNode(this, config);
         var node = this;
-        doConnect(config);
 
-        node.on('input', function(msg) {
+        node.on('input', function (msg) {
             console.log('Start to execute SQL ' + msg.payload);
-            var query = node.cursor.query('show databases;');
-            var promise = query.execute();
-            promise.then(function(result) {
+            var promise = query(msg.payload);
+            promise.then(function (result) {
                 result.pretty();
             });
         });
 
         node.on('close', function name(msg) {
-            node.conn.close()
+            console.log("TDEngine node closed.");
         })
 
-        function doConnect(config) {
-            var host = config.host ? config.host : 'localhost';
-            var port = config.port ? config.port : 6030;
-            var username = this.credentials.username ? this.credentials.username : 'root';
-            var password = this.credentials.password ? this.credentials.password : 'taosdata';
-
-            var conn = taos.connect({ host: host, user: username, password: password, port: port });
-            var cursor = conn.cursor(); // Initializing a new cursor
-            node.conn = conn;
-            node.cursor = cursor;
-            testConnection();
-            console.log('Connect to TDEngine Database by ' + host + ':' + port + ' with credentials ' + username + '/' + password);
+        async function query(sql) {
+            try {
+                let response = await fetch(this.generateUrl(), {
+                    method: 'POST',
+                    body: sql,
+                    headers: { 'Authorization': this.token() }
+                })
+                if (response.status == 'succ') {
+                    console.log("Get http response from taos : " + response.json());
+                    return await response.json()
+                } else {
+                    throw new Error(response.desc)
+                }
+            } catch (e) {
+                console.log("Request Failed " + e)
+            }
         }
 
-        function testConnection() {
-            var query = node.cursor.query('show databases;');
-            var promise = query.execute();
-            promise.then(function(result) {
-                result.pretty();
-            });
+        function generateUrl() {
+            return "http://" + this.config.host + ":" + this.config.port + this.config.path;
         }
+
+        function token() {
+            return 'Basic ' + Buffer.from(this.config.username + ":" + this.config.password).toString('base64')
+        }
+
     }
     RED.nodes.registerType("tdengine", TDEngineNode, {
         credentials: {

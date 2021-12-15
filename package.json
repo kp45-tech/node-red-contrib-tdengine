@@ -2,7 +2,7 @@
     "name": "node-red-contrib-tdengine",
     "version": "0.0.1",
     "description": "",
-    "main": "index.js",
+    "main": "tdengine.js",
     "scripts": {
         "test": "mocha \"test/*_spec.js\""
     },
@@ -12,13 +12,8 @@
     },
     "author": "kevinpan45@163.com",
     "license": "ISC",
-    "bugs": {
-        "url": "https://github.com/kevinpan45/node-red-contrib-tdengine/issues"
-    },
-    "homepage": "https://github.com/kevinpan45/node-red-contrib-tdengine#readme",
     "dependencies": {
-        "mocha": "^9.1.1",
-        "td2.0-connector": "^2.0.10"
+        "node-fetch": "^3.1.0"
     },
     "node-red": {
         "nodes": {
@@ -30,7 +25,7 @@
         "tdengine"
     ],
     "devDependencies": {
-        "node-red": "^2.0.6",
+        "node-red": "^2.1.4",
         "node-red-node-test-helper": "^0.2.7"
     }
 }
