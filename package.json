@@ -4,7 +4,7 @@
     "description": "",
     "main": "tdengine.js",
     "scripts": {
-        "test": "mocha \"test/*_spec.js\""
+        "test": "mocha --reporter spec --timeout 30000 test/*_spec.js"
     },
     "repository": {
         "type": "git",

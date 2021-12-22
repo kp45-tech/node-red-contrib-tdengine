@@ -1,53 +1,76 @@
 module.exports = function (RED) {
-    const fetch = require('node-fetch');
+  "use strict";
+  const fetch = require('node-fetch');
 
-    function TDEngineNode(config) {
-        RED.nodes.createNode(this, config);
-        var node = this;
+  function TaosConfig(n) {
+    RED.nodes.createNode(this, n);
+    this.host = n.host;
+    this.port = n.port;
+    this.username = n.username;
+    this.password = n.password;
+  }
+  RED.nodes.registerType("taos-config", TaosConfig);
 
-        node.on('input', function (msg) {
-            console.log('Start to execute SQL ' + msg.payload);
-            var promise = query(msg.payload);
-            promise.then(function (result) {
-                result.pretty();
-            });
-        });
+  function TaosQuery(n) {
+    RED.nodes.createNode(this, n);
+    this.server = RED.nodes.getNode(n.server);
+    this.database = n.database;
+    this.query = n.query;
+    var node = this;
 
-        node.on('close', function name(msg) {
-            console.log("TDEngine node closed.");
-        })
-
-        async function query(sql) {
-            try {
-                let response = await fetch(this.generateUrl(), {
-                    method: 'POST',
-                    body: sql,
-                    headers: { 'Authorization': this.token() }
-                })
-                if (response.status == 'succ') {
-                    console.log("Get http response from taos : " + response.json());
-                    return await response.json()
-                } else {
-                    throw new Error(response.desc)
-                }
-            } catch (e) {
-                console.log("Request Failed " + e)
-            }
-        }
-
-        function generateUrl() {
-            return "http://" + this.config.host + ":" + this.config.port + this.config.path;
-        }
-
-        function token() {
-            return 'Basic ' + Buffer.from(this.config.username + ":" + this.config.password).toString('base64')
-        }
-
-    }
-    RED.nodes.registerType("tdengine", TDEngineNode, {
-        credentials: {
-            username: { type: "text" },
-            password: { type: "password" }
-        }
+    node.on("close", function (done) {
+      node.status({});
+      client = null;
+      done();
     });
-}
+
+    node.on("input", function (msg, send, done) {
+      let topic = undefined;
+      send = send || function () { node.send.apply(node, arguments) }
+      done = done || function (err) { if (err) node.error(err, msg); }
+
+      let sql = msg.payload;
+
+      if (!msg.payload || msg.payload == "") {
+        throw new Error("Execute SQL must be set.");
+      }
+
+      try {
+        let response = query(this.server, sql);
+        msg.payload = response;
+        send(msg);
+        done();
+      } catch (error) {
+        done(error);
+      }
+
+    });
+  }
+  RED.nodes.registerType("taos-query", TaosQuery);
+
+  async function query(server, sql) {
+    try {
+      let response = await fetch(this.generateUrl(server), {
+        method: 'POST',
+        body: sql,
+        headers: { 'Authorization': this.token(server) }
+      })
+      if (response.status == 'succ') {
+        console.log("Get http response from taos : " + response.json());
+        return await response.json()
+      } else {
+        throw new Error(response.desc)
+      }
+    } catch (e) {
+      console.log("Request Failed " + e)
+    }
+  }
+
+  function generateUrl(server) {
+    return "http://" + server.host + ":" + server.port + server.path;
+  }
+
+  function token(server) {
+    return 'Basic ' + Buffer.from(server.username + ":" + server.password).toString('base64')
+  }
+};
