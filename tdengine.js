@@ -1,50 +1,71 @@
-module.exports = function(RED) {
-    const taos = require('td2.0-connector');
+module.exports = function (RED) {
+  "use strict";
+  const axios = require('axios');
 
-    function TDEngineNode(config) {
-        RED.nodes.createNode(this, config);
-        var node = this;
-        doConnect(config);
+  function TaosConfig(n) {
+    RED.nodes.createNode(this, n);
+    this.host = n.host;
+    this.port = n.port;
+    this.username = n.username;
+    this.password = n.password;
+  }
+  RED.nodes.registerType("taos-config", TaosConfig);
 
-        node.on('input', function(msg) {
-            console.log('Start to execute SQL ' + msg.payload);
-            var query = node.cursor.query('show databases;');
-            var promise = query.execute();
-            promise.then(function(result) {
-                result.pretty();
-            });
-        });
+  function TaosQuery(n) {
+    RED.nodes.createNode(this, n);
+    this.server = RED.nodes.getNode(n.server);
+    this.database = n.database;
+    var node = this;
 
-        node.on('close', function name(msg) {
-            node.conn.close()
-        })
-
-        function doConnect(config) {
-            var host = config.host ? config.host : 'localhost';
-            var port = config.port ? config.port : 6030;
-            var username = this.credentials.username ? this.credentials.username : 'root';
-            var password = this.credentials.password ? this.credentials.password : 'taosdata';
-
-            var conn = taos.connect({ host: host, user: username, password: password, port: port });
-            var cursor = conn.cursor(); // Initializing a new cursor
-            node.conn = conn;
-            node.cursor = cursor;
-            testConnection();
-            console.log('Connect to TDEngine Database by ' + host + ':' + port + ' with credentials ' + username + '/' + password);
-        }
-
-        function testConnection() {
-            var query = node.cursor.query('show databases;');
-            var promise = query.execute();
-            promise.then(function(result) {
-                result.pretty();
-            });
-        }
-    }
-    RED.nodes.registerType("tdengine", TDEngineNode, {
-        credentials: {
-            username: { type: "text" },
-            password: { type: "password" }
-        }
+    node.on("close", function (done) {
+      node.status({});
+      client = null;
+      done();
     });
-}
+
+    node.on("input", async function (msg, send, done) {
+      send = send || function () { node.send.apply(node, arguments) }
+      done = done || function (err) { if (err) node.error(err, msg); }
+
+      let sql = msg.payload;
+
+      if (!msg.payload || msg.payload == "") {
+        throw new Error("Execute SQL must be set.");
+      }
+
+      try {
+        msg.payload = await query(this.server, sql);
+        send(msg);
+        done();
+      } catch (error) {
+        done(error);
+      }
+
+    });
+  }
+  RED.nodes.registerType("taos-query", TaosQuery);
+
+  function query(server, sql) {
+    console.log("Start to execute SQL : " + sql);
+    let url = generateUrl(server);
+    return axios.post(url, sql, {
+      headers: { 'Authorization': token(server) }
+    }).then(function (response) {
+      console.log('Get http response from taos : ' + response.data.data);
+      return response.data.data;
+    }).catch(function (error) {
+      console.error("Request Failed " + e);
+      throw new Error(response.desc);
+    });
+  }
+
+
+
+  function generateUrl(server) {
+    return "http://" + server.host + ":" + server.port + '/rest/sql';
+  }
+
+  function token(server) {
+    return 'Basic ' + Buffer.from(server.username + ":" + server.password).toString('base64')
+  }
+};
