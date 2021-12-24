@@ -15,7 +15,6 @@ module.exports = function (RED) {
     RED.nodes.createNode(this, n);
     this.server = RED.nodes.getNode(n.server);
     this.database = n.database;
-    this.query = n.query;
     var node = this;
 
     node.on("close", function (done) {
@@ -24,8 +23,7 @@ module.exports = function (RED) {
       done();
     });
 
-    node.on("input", function (msg, send, done) {
-      let topic = undefined;
+    node.on("input", async function (msg, send, done) {
       send = send || function () { node.send.apply(node, arguments) }
       done = done || function (err) { if (err) node.error(err, msg); }
 
@@ -36,8 +34,7 @@ module.exports = function (RED) {
       }
 
       try {
-        let response = query(this.server, sql);
-        msg.payload = response;
+        msg.payload = await query(this.server, sql);
         send(msg);
         done();
       } catch (error) {
@@ -48,18 +45,21 @@ module.exports = function (RED) {
   }
   RED.nodes.registerType("taos-query", TaosQuery);
 
-  async function query(server, sql) {
+  function query(server, sql) {
+    console.log("Start to execute SQL : " + sql);
     let url = generateUrl(server);
-    axios.post(url, sql, {
+    return axios.post(url, sql, {
       headers: { 'Authorization': token(server) }
     }).then(function (response) {
       console.log('Get http response from taos : ' + response.data.data);
       return response.data.data;
     }).catch(function (error) {
-      console.log("Request Failed " + e);
+      console.error("Request Failed " + e);
       throw new Error(response.desc);
     });
   }
+
+
 
   function generateUrl(server) {
     return "http://" + server.host + ":" + server.port + '/rest/sql';
