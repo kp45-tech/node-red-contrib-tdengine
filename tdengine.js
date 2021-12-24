@@ -49,9 +49,9 @@ module.exports = function (RED) {
   RED.nodes.registerType("taos-query", TaosQuery);
 
   async function query(server, sql) {
-    let url = this.generateUrl(server);
+    let url = generateUrl(server);
     axios.post(url, sql, {
-      headers: { 'Authorization': this.token(server) }
+      headers: { 'Authorization': token(server) }
     }).then(function (response) {
       console.log('Get http response from taos : ' + response.data.data);
       return response.data.data;
