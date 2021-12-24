@@ -3,7 +3,6 @@ Use Taos data restful API to commit SQL, API call like "curl -H 'Authorization: 
 Input options:
 * DB Server: Server config selector
 * DB Name: Database to execute SQL
-* SQL: SQL statement, SQL combine and process in pre-step
 
 use axios to call http request
 
