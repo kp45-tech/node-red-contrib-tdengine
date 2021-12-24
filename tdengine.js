@@ -1,6 +1,6 @@
 module.exports = function (RED) {
   "use strict";
-  const fetch = require('node-fetch');
+  const axios = require('axios');
 
   function TaosConfig(n) {
     RED.nodes.createNode(this, n);
@@ -49,25 +49,20 @@ module.exports = function (RED) {
   RED.nodes.registerType("taos-query", TaosQuery);
 
   async function query(server, sql) {
-    try {
-      let response = await fetch(this.generateUrl(server), {
-        method: 'POST',
-        body: sql,
-        headers: { 'Authorization': this.token(server) }
-      })
-      if (response.status == 'succ') {
-        console.log("Get http response from taos : " + response.json());
-        return await response.json()
-      } else {
-        throw new Error(response.desc)
-      }
-    } catch (e) {
-      console.log("Request Failed " + e)
-    }
+    let url = this.generateUrl(server);
+    axios.post(url, sql, {
+      headers: { 'Authorization': this.token(server) }
+    }).then(function (response) {
+      console.log('Get http response from taos : ' + response.data.data);
+      return response.data.data;
+    }).catch(function (error) {
+      console.log("Request Failed " + e);
+      throw new Error(response.desc);
+    });
   }
 
   function generateUrl(server) {
-    return "http://" + server.host + ":" + server.port + server.path;
+    return "http://" + server.host + ":" + server.port + '/rest/sql';
   }
 
   function token(server) {
