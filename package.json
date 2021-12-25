@@ -3,9 +3,6 @@
     "version": "0.0.1",
     "description": "",
     "main": "tdengine.js",
-    "scripts": {
-        "test": "mocha --reporter spec --timeout 30000 test/*_spec.js"
-    },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/kevinpan45/node-red-contrib-tdengine.git"
@@ -13,7 +10,8 @@
     "author": "kevinpan45@163.com",
     "license": "ISC",
     "dependencies": {
-        "axios": "^0.24.0"
+        "axios": "^0.24.0",
+        "mocha": "^9.1.3"
     },
     "node-red": {
         "nodes": {
