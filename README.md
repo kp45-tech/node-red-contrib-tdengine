@@ -20,8 +20,17 @@ Use [axios](https://axios-http.com/) to call http request
 5. Add function or other node to create SQL, put SQL into msg.payload
 6. Link to "taos query" node
 
-Full docker sample run this command
+### Demo
+1. Start Node-Red by docker
 ```
-docker run -it -p 1880:1880 -v demo:/data --name mynodered nodered/node-red
+docker run -it -p 1880:1880 -v node_red_data:/data --name mynodered nodered/node-red
 ```
-
+2. Import sample flow "demo/flow.json"
+![import-flow](demo/ImportFlow.png)
+3. Install TDEngine node by name "node-red-contrib-tdengine", current version is 0.0.2
+![alt](demo/InstallTDEngineNode.png)
+4. Modify your TDEngine server config
+![alt](demo/ModifyServerConfig.png)
+5. Edit test SQL
+![alt](demo/EditTestSQL.png)
+6. Start flow by click Inject node
