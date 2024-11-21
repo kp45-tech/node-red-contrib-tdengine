@@ -78,7 +78,7 @@
         "id": "e385222cd91994dc",
         "type": "taos-config",
         "host": "localhost",
-        "port": "6030",
+        "port": "6041",
         "username": "root",
         "password": "taosdata"
     }
